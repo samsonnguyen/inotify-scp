@@ -21,6 +21,17 @@ case "${event}" in
     ;;
 esac
 
+if [ -n "${IGNORE_PATTERNS:-}" ]; then
+  IFS=',' read -ra _patterns <<< "${IGNORE_PATTERNS}"
+  for pattern in "${_patterns[@]}"; do
+    # shellcheck disable=SC2053
+    if [[ "${file}" == ${pattern} ]]; then
+      log "matched ignore pattern '${pattern}', skipping"
+      exit 0
+    fi
+  done
+fi
+
 if [ ! -f "${path}" ]; then
   log "file no longer exists, skipping"
   exit 0
